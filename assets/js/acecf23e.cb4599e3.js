@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkiam=self.webpackChunkiam||[]).push([[1903],{1912:a=>{a.exports=JSON.parse('{"blogBasePath":"/iam/blog","blogTitle":"Blog","authorsListPath":"/iam/blog/authors"}')}}]);
