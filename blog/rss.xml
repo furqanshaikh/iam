@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="rss.xsl"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
     <channel>
-        <title>My Site Blog</title>
+        <title>IAM Documentation Blog</title>
         <link>https://furqanshaikh.github.io/iam/blog</link>
-        <description>My Site Blog</description>
+        <description>IAM Documentation Blog</description>
         <lastBuildDate>Sun, 06 Oct 2024 12:50:39 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
@@ -13,6 +13,588 @@
             <link>https://furqanshaikh.github.io/iam/blog/first-post</link>
             <guid>https://furqanshaikh.github.io/iam/blog/first-post</guid>
             <pubDate>Sun, 06 Oct 2024 12:50:39 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[Identity Model in IdentityIQ]]></title>
+            <link>https://furqanshaikh.github.io/iam/blog/2024/09/20/iiq-identity-model</link>
+            <guid>https://furqanshaikh.github.io/iam/blog/2024/09/20/iiq-identity-model</guid>
+            <pubDate>Fri, 20 Sep 2024 00:00:00 GMT</pubDate>
+            <description><![CDATA[Discussion on Identity Model]]></description>
+            <content:encoded><![CDATA[<h2 class="anchor anchorWithStickyNavbar_LWe7" id="discussion-on-identity-model">Discussion on Identity Model<a href="https://furqanshaikh.github.io/iam/blog/2024/09/20/iiq-identity-model#discussion-on-identity-model" class="hash-link" aria-label="Direct link to Discussion on Identity Model" title="Direct link to Discussion on Identity Model">​</a></h2>
+<p>The sources offer a detailed look at the <strong>Identity Model</strong> within IdentityIQ, a pre-built structure that simplifies how workflows interact with identity data, particularly in forms. Let's explore its significance, structure, and usage.</p>
+<p><strong>Why is the Identity Model important?</strong></p>
+<p>Workflows in IdentityIQ often revolve around making changes to identities. Before the Identity Model, managing identity data within workflows, especially when using forms, was cumbersome. Each attribute required separate handling:</p>
+<ul>
+<li>Defining individual business process variables for each attribute.</li>
+<li>Passing each variable to and from the approval workflow.</li>
+<li>Defining each variable as a form argument.</li>
+</ul>
+<p>This approach led to complexity and increased the potential for errors.</p>
+<p>The Identity Model solves these problems by representing the entire Identity as a single, manageable unit within a workflow. It acts as a container holding all relevant identity data, streamlining how workflows interact with this data, particularly in forms.</p>
+<p><strong>How does the Identity Model work?</strong></p>
+<p>The Identity Model is essentially a map (a collection of key-value pairs) populated with various identity attributes and related information. You can access this model within workflows through a dedicated library method called <code>getIdentityModel</code>.</p>
+<p><strong>What are the key components of the Identity Model?</strong></p>
+<p>The Identity Model includes a comprehensive set of entries representing various facets of an identity:</p>
+<ul>
+<li><strong>Standard and Extended Identity Attributes:</strong>  This includes all basic identity attributes like first name, last name, email, manager, etc., along with any custom extended attributes defined in your IdentityIQ installation. Most are stored as strings, with multi-valued attributes represented as lists.</li>
+<li><strong>Role Information:</strong> Includes lists for both <code>detectedRoles</code> and <code>assignedRoles</code>, providing insights into the roles associated with the identity.</li>
+<li><strong>Manager Details:</strong> Stores the manager's name as a string and provides a separate <code>info map</code> with additional manager information, including their ID, name, and display name.</li>
+<li><strong>Time-Related Data:</strong> Includes dates for <code>lastRefresh</code>, <code>lastLogin</code>, and <code>passwordExpiration</code>, offering temporal context to the identity's activity.</li>
+<li><strong>Flags and Status Information:</strong> Contains boolean flags like <code>isWorkgroup</code>, <code>managerStatus</code>, <code>correlated</code>, and <code>correlatedOverriden</code>, along with information about assigned scopes and transformer options.</li>
+<li><strong>Object Class Information:</strong> Stores the class of the object (<code>sailpoint.object.Identity</code>) and the transformer class (<code>sailpoint.transformer.IdentityTransformer</code>) used for data manipulation.</li>
+</ul>
+<p><strong>How do I use the Identity Model in my workflows?</strong></p>
+<p>Here's a step-by-step guide on utilizing the Identity Model:</p>
+<ol>
+<li><strong>Define Process Variable:</strong> Create a process variable within your workflow (e.g., <code>identityModel</code>) to store the Identity Model.</li>
+<li><strong>Initialize and Populate:</strong> In an early workflow step, call the <code>getIdentityModel</code> method from the <code>IdentityLibrary</code> to initialize and populate the <code>identityModel</code> variable. You can pass an identity name or ID as an argument to pre-populate the model with existing identity data.</li>
+<li><strong>Link to Form:</strong> In the approval step containing your form, create an argument (e.g., <code>workItemFormBasePath</code>) and set its value to the <code>identityModel</code> variable. This creates a bridge between the form and the Identity Model, allowing data exchange.</li>
+<li><strong>Reference Attributes:</strong> Within the form, directly reference attributes from the <code>identityModel</code> as if they were individual variables (e.g., use "firstname" instead of "identityModel.firstname").</li>
+<li><strong>Process Changes:</strong> After form submission, utilize the <code>buildPlanFromIdentityModel()</code> method to compare the initial and modified versions of the <code>identityModel</code>, identifying differences and automatically generating a provisioning plan to implement changes.</li>
+</ol>
+<p><strong>Example:</strong></p>
+<p>Consider a scenario where a workflow form needs to display and allow editing of ten identity attributes. Without the Identity Model, you would manage ten separate variables. The Identity Model simplifies this by storing all attributes within a single <code>identityModel</code> variable. When the form loads, it accesses and displays these attributes. After the user edits and submits the form, the workflow compares the updated <code>identityModel</code> with its original state and provisions any necessary changes to the identity object. This streamlined process reduces complexity and potential errors.</p>
+<p><strong>Additional Notes:</strong></p>
+<ul>
+<li>
+<p>While the sources focus on the Identity Model's role in workflows and forms, its utility may extend to other areas where streamlined identity data management is beneficial.</p>
+</li>
+<li>
+<p>The sources provide a basic outline and usage pattern for the Identity Model. Further customization and advanced implementations might require deeper exploration of IdentityIQ's API documentation and potentially involve custom coding.</p>
+</li>
+</ul>
+<p>By incorporating the Identity Model, IdentityIQ empowers organizations to handle identity data within workflows more efficiently, especially when forms are involved. It reduces the complexity of managing individual attributes, simplifies form interactions, and ultimately leads to a more robust and maintainable identity management system.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[CyberArk SCIM Server Authentication Using Credential Files]]></title>
+            <link>https://furqanshaikh.github.io/iam/blog/2024/09/19/CyberArk SCIM Server Authentication Using Credential Files</link>
+            <guid>https://furqanshaikh.github.io/iam/blog/2024/09/19/CyberArk SCIM Server Authentication Using Credential Files</guid>
+            <pubDate>Thu, 19 Sep 2024 00:00:00 GMT</pubDate>
+            <description><![CDATA[CyberArk SCIM Server Authentication Using Credential Files]]></description>
+            <content:encoded><![CDATA[<h3 class="anchor anchorWithStickyNavbar_LWe7" id="cyberark-scim-server-authentication-using-credential-files">CyberArk SCIM Server Authentication Using Credential Files<a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/CyberArk%20SCIM%20Server%20Authentication%20Using%20Credential%20Files#cyberark-scim-server-authentication-using-credential-files" class="hash-link" aria-label="Direct link to CyberArk SCIM Server Authentication Using Credential Files" title="Direct link to CyberArk SCIM Server Authentication Using Credential Files">​</a></h3>
+<p>The CyberArk SCIM server can authenticate to the CyberArk Vault using credential files, which is CyberArk's recommended method for enhanced security. This method avoids storing passwords directly and instead uses dynamically rotated credentials retrieved on demand.</p>
+<p>Here's how the process works:</p>
+<ol>
+<li><strong>Credential File Creation:</strong>
+<ul>
+<li>First, you need to identify the username associated with the SCIM-account object in the SCIM Config safe. This information is stored in the "UserName" file category property of the SCIM-account object.</li>
+<li>Next, create a credential file using the CyberArk <code>CreateCredFile</code> utility. The file name should be the same as the username identified in the previous step, with a ".cred" extension. For example, if the username is "SCIM-user", the credential file should be named "SCIM-user.cred".</li>
+<li>The <code>CreateCredFile</code> utility takes several parameters, including the username, password, hostname, and entropy file. The specific command to create the credential file is provided in the sources.</li>
+</ul>
+</li>
+<li><strong>Credential File Placement:</strong> Once the credential file is created, it needs to be placed in the <code>c:\CyberArk-SCIM</code> folder along with its associated entropy file.</li>
+<li><strong>SCIM Server Authentication:</strong> When the SCIM server needs to authenticate to the Vault, it first checks for a credential file with the name "SCIM-user.cred" in the <code>c:\CyberArk-SCIM</code> directory. If this file is found, the SCIM server uses the username from the credential file and the credential itself to authenticate to the Vault. The AIM Credential Provider is not used in this scenario.</li>
+<li><strong>Automatic Password Change:</strong> When using credential files, the automatic password change feature is enabled. This means that every time the SCIM server logs into the Vault, a new randomized password is generated and updated in both the authentication file and the Vault.</li>
+</ol>
+<p><strong>Fallback Mechanism:</strong></p>
+<p>If a credential file named "SCIM-user.cred" is not found, the SCIM server will attempt to authenticate using the AIM Credential Provider.</p>
+<p><strong>Log Verification:</strong></p>
+<p>The sources provide examples of debug and trace logs that can be used to verify whether the SCIM server is using a credential file or the AIM Credential Provider for authentication.</p>
+<p><strong>Additional Notes:</strong></p>
+<ul>
+<li>The sources highlight that using the default authentication method (user-password credentials stored in the vault) can expose the password in Windows Audits if this feature is enabled at the OS level.</li>
+<li>For existing SCIM server installations (version 1.3.4 and earlier), CyberArk recommends upgrading to version 1.3.5 or later to take advantage of the credential file authentication method.</li>
+</ul>
+<p>By using credential files, the CyberArk SCIM server benefits from a more secure authentication method, reducing the risks associated with storing and managing passwords directly.</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="what-are-the-two-internal-authentication-methods-available-for-the-cyberark-scim-server">What are the two internal authentication methods available for the CyberArk SCIM server?<a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/CyberArk%20SCIM%20Server%20Authentication%20Using%20Credential%20Files#what-are-the-two-internal-authentication-methods-available-for-the-cyberark-scim-server" class="hash-link" aria-label="Direct link to What are the two internal authentication methods available for the CyberArk SCIM server?" title="Direct link to What are the two internal authentication methods available for the CyberArk SCIM server?">​</a></h3>
+<p>The two internal authentication methods available for the CyberArk SCIM server are:</p>
+<ul>
+<li>
+<p><strong>CyberArk Credential Files (Recommended):</strong> This method, introduced in SCIM version 1.3.5, enhances security by using dynamically rotated credentials instead of a stored password. CyberArk recommends this method.</p>
+<p>To implement this method, a credential file containing the username from the SCIM-account object must be created and stored in the <code>c:\CyberArk-SCIM</code> folder. When the SCIM server needs to authenticate to the Vault, it will prioritize using this credential file over the AIM Credential Provider.</p>
+</li>
+<li>
+<p><strong>Username-password credentials stored in the vault (default):</strong> This method uses the AIM Credential Provider to retrieve the username and password for the SCIM server from the CyberArk Vault. This method is the default but is less secure than using credential files because it requires storing the password in the Vault. The sources note that this method can expose the password in the Windows audit logs if Windows Audits is enabled at the OS level.</p>
+</li>
+</ul>
+<p>The sources recommend using credential files over the AIM Credential Provider and suggest upgrading to SCIM Server version 1.3.5 or later to utilize this authentication method.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Integrating SailPoint with CyberArk Using SCIM Server Without AIM Credential Provider]]></title>
+            <link>https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration</link>
+            <guid>https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration</guid>
+            <pubDate>Thu, 19 Sep 2024 00:00:00 GMT</pubDate>
+            <description><![CDATA[Introduction]]></description>
+            <content:encoded><![CDATA[<h3 class="anchor anchorWithStickyNavbar_LWe7" id="introduction">Introduction<a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#introduction" class="hash-link" aria-label="Direct link to Introduction" title="Direct link to Introduction">​</a></h3>
+<p>Integrating SailPoint with CyberArk allows for streamlined identity governance and privileged access management (PAM). With CyberArk's SCIM (System for Cross-domain Identity Management) server, organizations can manage privileged accounts and users in SailPoint without relying on the AIM Credential Provider. This post will walk you through the steps of setting up a SailPoint-CyberArk integration using the SCIM server, enabling you to query, modify, and manage privileged data without the AIM Credential Provider.</p>
+<hr>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="prerequisites">Prerequisites<a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#prerequisites" class="hash-link" aria-label="Direct link to Prerequisites" title="Direct link to Prerequisites">​</a></h3>
+<p>Before starting the integration, ensure the following components are installed:</p>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="cyberark-requirements">CyberArk Requirements:<a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#cyberark-requirements" class="hash-link" aria-label="Direct link to CyberArk Requirements:" title="Direct link to CyberArk Requirements:">​</a></h4>
+<ul>
+<li>CyberArk SCIM Server v1.3.5 or above</li>
+<li>CyberArk Vault (with PACLI for querying and managing privileged data)</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="sailpoint-requirements">SailPoint Requirements:<a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#sailpoint-requirements" class="hash-link" aria-label="Direct link to SailPoint Requirements:" title="Direct link to SailPoint Requirements:">​</a></h4>
+<ul>
+<li>SailPoint IdentityIQ v7.1 patch 2 or above</li>
+<li>SailPoint PAM Module</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="system-requirements">System Requirements:<a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#system-requirements" class="hash-link" aria-label="Direct link to System Requirements:" title="Direct link to System Requirements:">​</a></h4>
+<ul>
+<li><strong>Windows Server 2016 or 2019</strong></li>
+<li><strong>Java Version 1.8 (64-bit OpenJDK recommended)</strong></li>
+<li><strong>8-core Processor, 32 GB RAM</strong></li>
+</ul>
+<hr>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="step-by-step-guide">Step-by-Step Guide<a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#step-by-step-guide" class="hash-link" aria-label="Direct link to Step-by-Step Guide" title="Direct link to Step-by-Step Guide">​</a></h3>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="1-download-and-set-up-scim-server">1. <strong>Download and Set Up SCIM Server</strong><a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#1-download-and-set-up-scim-server" class="hash-link" aria-label="Direct link to 1-download-and-set-up-scim-server" title="Direct link to 1-download-and-set-up-scim-server">​</a></h4>
+<ol>
+<li>Download the CyberArk SCIM distribution from the CyberArk Marketplace.</li>
+<li>Extract the contents from the zip file and move the <code>CyberArk-SCIM</code> folder to your <code>C:\</code> drive.</li>
+<li>Verify that the folder contains essential files:<!-- -->
+<ul>
+<li><code>CAScimServer-&lt;version&gt;.jar</code></li>
+<li><code>PACLI</code></li>
+<li>Configuration files (e.g., <code>config.yml</code>, <code>globalConfig.yml</code>)</li>
+</ul>
+</li>
+</ol>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="2-install-java">2. <strong>Install Java</strong><a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#2-install-java" class="hash-link" aria-label="Direct link to 2-install-java" title="Direct link to 2-install-java">​</a></h4>
+<p>SCIM server requires Java to function. Follow these steps to install and configure Java:</p>
+<ol>
+<li>Download Java 1.8 (64-bit version) from <a href="https://www.oracle.com/java/technologies/javase-downloads.html" target="_blank" rel="noopener noreferrer">here</a>.</li>
+<li>After installing Java, set the <code>%JAVA_HOME%</code> environment variable:<!-- -->
+<ul>
+<li>Open <strong>System Properties &gt; Advanced &gt; Environment Variables</strong>.</li>
+<li>Add <code>C:\Program Files\Java\bin</code> to the system's path.</li>
+</ul>
+</li>
+</ol>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="3-pre-installation-configuration">3. <strong>Pre-installation Configuration</strong><a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#3-pre-installation-configuration" class="hash-link" aria-label="Direct link to 3-pre-installation-configuration" title="Direct link to 3-pre-installation-configuration">​</a></h4>
+<p>Before proceeding with the SCIM installation, configure the environment variables and ensure system readiness:</p>
+<ol>
+<li>
+<p><strong>Configure PACLI Path</strong>:</p>
+<ul>
+<li>In the system environment variables, append the PACLI path to the system's <code>Path</code> variable: <code>C:\CyberArk-SCIM\PACLI</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Enable CyberArk Vault Platform</strong>:</p>
+<ul>
+<li>Log in to the CyberArk PVWA as an admin.</li>
+<li>Navigate to <strong>Administration &gt; Platform Management</strong> and activate the CyberArk Vault platform.</li>
+</ul>
+</li>
+</ol>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="4-install-and-configure-scim-server">4. <strong>Install and Configure SCIM Server</strong><a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#4-install-and-configure-scim-server" class="hash-link" aria-label="Direct link to 4-install-and-configure-scim-server" title="Direct link to 4-install-and-configure-scim-server">​</a></h4>
+<ol>
+<li>
+<p>Open a command prompt as an administrator and navigate to the <code>C:\CyberArk-SCIM</code> directory.</p>
+</li>
+<li>
+<p>Run the SCIM installation command:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token plain">SCIMInstaller.exe -SailPoint</span><br></span></code></pre><div class="buttonGroup__atx"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_eSgA" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_y97N"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_LjdS"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
+<p><strong>Note</strong>: The <code>-SailPoint</code> flag is case-sensitive.</p>
+</li>
+<li>
+<p>Follow the installation prompts, including entering the necessary Vault and SCIM configuration parameters from your pre-installation checklist.</p>
+</li>
+</ol>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="5-configure-sailpoint-to-communicate-with-scim-server">5. <strong>Configure SailPoint to Communicate with SCIM Server</strong><a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#5-configure-sailpoint-to-communicate-with-scim-server" class="hash-link" aria-label="Direct link to 5-configure-sailpoint-to-communicate-with-scim-server" title="Direct link to 5-configure-sailpoint-to-communicate-with-scim-server">​</a></h4>
+<ol>
+<li>
+<p>Create a privileged account in the CyberArk Vault for SailPoint integration.</p>
+<ul>
+<li>This account will be used by SailPoint to authenticate against the CyberArk SCIM server.</li>
+</ul>
+</li>
+<li>
+<p>Modify the <code>globalConfig.yml</code> in the CyberArk-SCIM folder to reflect the SailPoint-specific configurations.</p>
+</li>
+<li>
+<p>In SailPoint, configure a new CyberArk application in <strong>IdentityIQ</strong> using the following information:</p>
+<ul>
+<li><strong>SCIM Server URL</strong>: <code>http://&lt;SCIM_Server_IP&gt;:8080/CyberArk/scim/v2/</code></li>
+<li><strong>Authentication</strong>: Use basic authentication with the SailPoint-user account created in CyberArk.</li>
+</ul>
+</li>
+</ol>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="6-testing-the-scim-server">6. <strong>Testing the SCIM Server</strong><a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#6-testing-the-scim-server" class="hash-link" aria-label="Direct link to 6-testing-the-scim-server" title="Direct link to 6-testing-the-scim-server">​</a></h4>
+<p>Test the SCIM server by accessing the Swagger UI:</p>
+<ol>
+<li>
+<p>Open a browser and navigate to:</p>
+<div class="codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token plain">http://&lt;SCIM_Server_IP&gt;:8080/swagger</span><br></span></code></pre><div class="buttonGroup__atx"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_eSgA" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_y97N"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_LjdS"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
+</li>
+<li>
+<p>Test basic SCIM operations, such as querying users and groups, to ensure the server is operational and configured correctly.</p>
+</li>
+<li>
+<p>Alternatively, use the following <code>curl</code> command to test connectivity:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token plain">curl -u SailPoint-user:&lt;password&gt; http://&lt;SCIM_SERVER_IP&gt;:8080/CyberArk/scim/v2/ResourceTypes</span><br></span></code></pre><div class="buttonGroup__atx"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_eSgA" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_y97N"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_LjdS"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
+</li>
+</ol>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="7-configure-oauth-for-secure-authentication-optional">7. <strong>Configure OAuth for Secure Authentication (Optional)</strong><a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#7-configure-oauth-for-secure-authentication-optional" class="hash-link" aria-label="Direct link to 7-configure-oauth-for-secure-authentication-optional" title="Direct link to 7-configure-oauth-for-secure-authentication-optional">​</a></h4>
+<p>If you want to integrate OAuth for additional security, configure it in the <code>globalConfig.yml</code>:</p>
+<ol>
+<li>
+<p>In SailPoint, generate the required client ID and secret for OAuth authentication.</p>
+</li>
+<li>
+<p>Update the <code>globalConfig.yml</code> with your OAuth provider's details (e.g., Azure AD or Okta):</p>
+<div class="language-yaml codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-yaml codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token key atrule" style="color:#00a4db">oauth2</span><span class="token punctuation" style="color:#393A34">:</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  </span><span class="token key atrule" style="color:#00a4db">jwksURI</span><span class="token punctuation" style="color:#393A34">:</span><span class="token plain"> </span><span class="token string" style="color:#e3116c">"https://login.microsoftonline.com/&lt;tenant-id&gt;/discovery/v2.0/keys"</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  </span><span class="token key atrule" style="color:#00a4db">issuer</span><span class="token punctuation" style="color:#393A34">:</span><span class="token plain"> </span><span class="token string" style="color:#e3116c">"https://login.microsoftonline.com/&lt;tenant-id&gt;/v2.0"</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  </span><span class="token key atrule" style="color:#00a4db">usernameField</span><span class="token punctuation" style="color:#393A34">:</span><span class="token plain"> </span><span class="token string" style="color:#e3116c">"preferred_username"</span><br></span></code></pre><div class="buttonGroup__atx"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_eSgA" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_y97N"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_LjdS"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
+</li>
+<li>
+<p>Restart the SCIM server to apply the changes.</p>
+</li>
+</ol>
+<hr>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="conclusion">Conclusion<a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#conclusion" class="hash-link" aria-label="Direct link to Conclusion" title="Direct link to Conclusion">​</a></h3>
+<p>By following these steps, you can integrate SailPoint IdentityIQ with CyberArk using the SCIM server without relying on the AIM Credential Provider. This setup allows you to manage privileged accounts and users seamlessly through SailPoint's PAM module, ensuring secure and efficient access management.</p>
+<hr>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="additional-resources">Additional Resources<a href="https://furqanshaikh.github.io/iam/blog/2024/09/19/Sailpoint-CyberArk-Integration#additional-resources" class="hash-link" aria-label="Direct link to Additional Resources" title="Direct link to Additional Resources">​</a></h3>
+<ul>
+<li><a href="https://cyberark.com/" target="_blank" rel="noopener noreferrer">CyberArk SCIM Server Documentation</a></li>
+<li><a href="https://sailpoint.com/" target="_blank" rel="noopener noreferrer">SailPoint IdentityIQ PAM Integration Guide</a></li>
+</ul>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Configuring a Private Server for IdentityIQ's Microsoft Teams Service Code]]></title>
+            <link>https://furqanshaikh.github.io/iam/blog/2024/07/22/sailpoint-teams-integration</link>
+            <guid>https://furqanshaikh.github.io/iam/blog/2024/07/22/sailpoint-teams-integration</guid>
+            <pubDate>Mon, 22 Jul 2024 00:00:00 GMT</pubDate>
+            <description><![CDATA[Configuring a Private Server for IdentityIQ's Microsoft Teams Service Code]]></description>
+            <content:encoded><![CDATA[<h2 class="anchor anchorWithStickyNavbar_LWe7" id="configuring-a-private-server-for-identityiqs-microsoft-teams-service-code">Configuring a Private Server for IdentityIQ's Microsoft Teams Service Code<a href="https://furqanshaikh.github.io/iam/blog/2024/07/22/sailpoint-teams-integration#configuring-a-private-server-for-identityiqs-microsoft-teams-service-code" class="hash-link" aria-label="Direct link to Configuring a Private Server for IdentityIQ's Microsoft Teams Service Code" title="Direct link to Configuring a Private Server for IdentityIQ's Microsoft Teams Service Code">​</a></h2>
+<p>The sources provide a detailed explanation of how to configure a private server to host IdentityIQ's service code for Microsoft Teams integration. Here's a breakdown of the process and key recommendations:</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="server-selection-and-setup">Server Selection and Setup:<a href="https://furqanshaikh.github.io/iam/blog/2024/07/22/sailpoint-teams-integration#server-selection-and-setup" class="hash-link" aria-label="Direct link to Server Selection and Setup:" title="Direct link to Server Selection and Setup:">​</a></h3>
+<ul>
+<li><strong>Dedicated Server:</strong> SailPoint strongly recommends using a separate, private server to run the IdentityIQ service code, distinct from the IdentityIQ application server. This enhances security by preventing direct internet exposure of the IdentityIQ server.</li>
+<li><strong>Operating System Support:</strong> The Microsoft Teams bot is compatible with all currently supported Windows and Linux versions. Choose the operating system that best suits your environment and expertise.</li>
+</ul>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="network-connectivity-and-security">Network Connectivity and Security:<a href="https://furqanshaikh.github.io/iam/blog/2024/07/22/sailpoint-teams-integration#network-connectivity-and-security" class="hash-link" aria-label="Direct link to Network Connectivity and Security:" title="Direct link to Network Connectivity and Security:">​</a></h3>
+<ul>
+<li><strong>Public IP and DNS Resolution:</strong> Ensure the private server has a public IP address that's publicly resolvable via DNS. This allows Microsoft Teams to establish a connection to the service code.</li>
+<li><strong>HTTPS and Valid Certificate:</strong> Enable HTTPS on the private server and install a valid SSL certificate from a Microsoft-trusted Certificate Authority. This establishes a secure communication channel and is essential for Microsoft Teams to trust the service code. Self-signed certificates are not supported.</li>
+<li><strong>Firewall Configuration:</strong> Configure your firewall to allow inbound traffic on the designated HTTPS port for the service code. This ensures Microsoft Teams can reach the service code without any blocks.</li>
+</ul>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="service-code-installation-and-configuration">Service Code Installation and Configuration:<a href="https://furqanshaikh.github.io/iam/blog/2024/07/22/sailpoint-teams-integration#service-code-installation-and-configuration" class="hash-link" aria-label="Direct link to Service Code Installation and Configuration:" title="Direct link to Service Code Installation and Configuration:">​</a></h3>
+<ol>
+<li><strong>Download Platform-Specific Package:</strong> Download the appropriate service code package for your chosen operating system (Windows or Linux) from Compass.</li>
+<li><strong>Extract and Configure Environment File:</strong> Extract the downloaded zip file on the private server. Locate the <code>env.template</code> file and create a copy named <code>.env</code>. This file contains environment variables that need configuration.</li>
+<li><strong>Configure Essential Parameters:</strong> Edit the <code>.env</code> file with the following crucial parameters:<!-- -->
+<ul>
+<li><code>PUBLIC_HOSTNAME</code>: Set this to the public DNS hostname of your service code, resolvable to the private server's IP address.</li>
+<li><code>LOCAL_HOSTNAME</code>:  Enter the private IP address of the server where the service code runs.</li>
+<li><code>PUBLIC_PORT</code> and <code>PRIVATE_PORT</code>: Specify the desired public and private ports for hosting the service code. The default values can be modified as needed.</li>
+<li><code>TENANT_ID</code>: Input your Azure tenant ID.</li>
+<li><code>APP_ID</code>:  Enter the Application (client) ID of your Microsoft Teams app from Azure.</li>
+<li><code>APP_NAME</code>: Provide the name of your Microsoft Teams app.</li>
+<li><code>SSO_CONNECTION_NAME</code>:  Input the name you assigned to the OAuth connection setting while configuring the Azure bot.</li>
+<li><code>ENCRYPTION_SECRET</code>: Set an 8-character secret for encrypting sensitive data.</li>
+<li><code>IIQ_URL</code>:  Enter the full URL of your IdentityIQ installation, including the protocol, hostname, port, and context path. Use the load balancer URL if applicable.</li>
+</ul>
+</li>
+<li><strong>Encrypt and Set App Secret:</strong>  Start the service code and use the provided encryption endpoint (<code>https://&lt;private IP&gt;:&lt;private port&gt;/util/encrypt</code>) to encrypt your Microsoft Teams app secret.  Set the encrypted value as <code>APP_SECRET</code> in the <code>.env</code> file.</li>
+<li><strong>Certificate and Key Configuration:</strong>
+<ul>
+<li>Create a dedicated directory (<code>cert</code>) within the service code directory to store the SSL certificate and private key.</li>
+<li>Obtain the SSL certificate and private key files from your certificate provider.</li>
+<li>Place the certificate file (e.g., <code>certificate.crt</code>) and private key file (e.g., <code>private.key</code>) inside the <code>cert</code> directory.</li>
+<li>Encrypt the certificate and private key using the encryption endpoint mentioned in the previous step.</li>
+<li>Update the <code>.env</code> file with the encrypted certificate and key values:<!-- -->
+<ul>
+<li><code>BOT_CERTIFICATE</code>: Encrypted certificate value.</li>
+<li><code>BOT_KEY</code>: Encrypted private key value.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Permissions and Ownership:</strong>
+<ul>
+<li>Set strict read and write permissions on the <code>cert</code> directory, granting access only to the owner of the service code process. This enhances the security of your sensitive key material.</li>
+</ul>
+</li>
+<li><strong>Start and Verify Service Code:</strong>  Start the IdentityIQ service code. You should see log messages indicating a successful start and connection to Azure services. Verify that the bot responds correctly to commands within Microsoft Teams.</li>
+</ol>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="additional-considerations">Additional Considerations:<a href="https://furqanshaikh.github.io/iam/blog/2024/07/22/sailpoint-teams-integration#additional-considerations" class="hash-link" aria-label="Direct link to Additional Considerations:" title="Direct link to Additional Considerations:">​</a></h3>
+<ul>
+<li><strong>Microsoft Azure Configuration:</strong>  The sources emphasize that successful integration requires specific configurations within Microsoft Azure, such as creating an API application, a Microsoft Teams application, and an Azure bot. The provided steps outline the required settings and values to ensure seamless communication between IdentityIQ and Microsoft Teams.</li>
+<li><strong>Security Best Practices:</strong>  The sources recommend following security best practices throughout the configuration process. This includes using strong encryption for sensitive data, restricting file permissions, and regularly reviewing security settings.</li>
+</ul>
+<p>This comprehensive guide to configuring a private server for IdentityIQ's Microsoft Teams service code is based entirely on the information available within the provided sources. Remember to consult the Microsoft Teams documentation and your IT security team for any platform-specific or security-related considerations.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Two Main Tasks in Configuring a PAM Application]]></title>
+            <link>https://furqanshaikh.github.io/iam/blog/2024/07/19/sailpoint-pam-integration</link>
+            <guid>https://furqanshaikh.github.io/iam/blog/2024/07/19/sailpoint-pam-integration</guid>
+            <pubDate>Fri, 19 Jul 2024 00:00:00 GMT</pubDate>
+            <description><![CDATA[Two Main Tasks in Configuring a PAM Application]]></description>
+            <content:encoded><![CDATA[<h2 class="anchor anchorWithStickyNavbar_LWe7" id="two-main-tasks-in-configuring-a-pam-application">Two Main Tasks in Configuring a PAM Application<a href="https://furqanshaikh.github.io/iam/blog/2024/07/19/sailpoint-pam-integration#two-main-tasks-in-configuring-a-pam-application" class="hash-link" aria-label="Direct link to Two Main Tasks in Configuring a PAM Application" title="Direct link to Two Main Tasks in Configuring a PAM Application">​</a></h2>
+<p>The two main tasks for configuring a Privileged Account Management (PAM) application in IdentityIQ are:</p>
+<ol>
+<li>
+<p><strong>Configuring a PAM Application:</strong> This task involves setting up a connection between IdentityIQ and your PAM vendor's system to aggregate data on PAM accounts, groups, vaults, and permissions.</p>
+<ul>
+<li>This process utilizes a PAM-specific application (connector) type called "Privileged Account Management".</li>
+<li>You need to configure the application to include both a <strong>connector</strong> and a <strong>target collector</strong>:<!-- -->
+<ul>
+<li>The <strong>connector</strong> is responsible for aggregating users, groups, and containers into IdentityIQ.</li>
+<li>The <strong>target collector</strong> reads in permissions users have on containers, and can write permissions back to the target system.</li>
+</ul>
+</li>
+<li>The PAM connector, based on IdentityIQ's SCIM 2.0 connector, requires configuration details like Base URL and authentication methods (OAuth2.0, API Token, or Basic Authentication).</li>
+</ul>
+</li>
+<li>
+<p><strong>Configuring PAM Global Settings:</strong> This task focuses on setting up global options for the PAM module within IdentityIQ.</p>
+<ul>
+<li>These settings control aspects like how PAM containers can be modified within IdentityIQ.</li>
+<li>You can define whether to allow adding/removing identities and privileged items in PAM containers, and whether to enable owners to modify PAM containers.</li>
+<li>Global settings also dictate the business process used for provisioning PAM identities. You can either utilize the standard LCMManage Passwords business process or define a custom workflow of type LCMProvisioning.</li>
+</ul>
+</li>
+</ol>
+<p>These two tasks are essential for setting up the PAM module in IdentityIQ. While these tasks establish the foundation for PAM integration, the sources also highlight additional configurations related to credential cycling, Rapid Setup processes, and task management for aggregation, indexing, and refreshing PAM data.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Lifecycle Events in SailPoint IdentityIQ]]></title>
+            <link>https://furqanshaikh.github.io/iam/blog/2024/07/16/sailpoint-lifecycle-events</link>
+            <guid>https://furqanshaikh.github.io/iam/blog/2024/07/16/sailpoint-lifecycle-events</guid>
+            <pubDate>Tue, 16 Jul 2024 00:00:00 GMT</pubDate>
+            <description><![CDATA[Lifecycle Events in SailPoint IdentityIQ]]></description>
+            <content:encoded><![CDATA[<h3 class="anchor anchorWithStickyNavbar_LWe7" id="lifecycle-events-in-sailpoint-identityiq">Lifecycle Events in SailPoint IdentityIQ<a href="https://furqanshaikh.github.io/iam/blog/2024/07/16/sailpoint-lifecycle-events#lifecycle-events-in-sailpoint-identityiq" class="hash-link" aria-label="Direct link to Lifecycle Events in SailPoint IdentityIQ" title="Direct link to Lifecycle Events in SailPoint IdentityIQ">​</a></h3>
+<p>In IdentityIQ, <strong>Lifecycle Events</strong> represent activities that occur during an employee's tenure at a company, such as joining, changing roles, or leaving. These events, when triggered by specific changes to an identity (like attribute changes or creation), initiate <strong>Business Processes</strong> (workflows) that can include provisioning actions.</p>
+<p>Here's a breakdown of key aspects related to Lifecycle Events:</p>
+<ul>
+<li><strong>Pre-defined Lifecycle Events:</strong> IdentityIQ provides four pre-defined Lifecycle Events, each linked to a specific trigger and default Business Process:<!-- -->
+<ul>
+<li><strong>Joiner:</strong> Triggered upon identity creation. The default process simply logs the identity's name. Typically customized to provision initial access rights (birthright access).</li>
+<li><strong>Leaver:</strong> Triggered when the "Inactive" attribute changes from false to true. The default process disables all the leaving identity's accounts.</li>
+<li><strong>Manager Transfer:</strong> Triggered when an identity's manager changes. The default process logs the old and new managers' names. Commonly customized to initiate a certification for the new manager to review the identity's access or provision access based on the new manager's group memberships.</li>
+<li><strong>Reinstate:</strong> Triggered when the "Inactive" attribute changes from true to false. The default process enables all previously disabled accounts of a returning identity.</li>
+</ul>
+</li>
+<li><strong>Lifecycle Events and Rapid Setup:</strong>  The <strong>Rapid Setup</strong> module simplifies the configuration of common Lifecycle Events like Joiner, Mover, and Leaver. It allows administrators to define event triggers, global actions, and per-application actions (like birthright role assignment). Rapid Setup offers a user-friendly interface for configuring these events without requiring in-depth workflow customization.</li>
+<li><strong>Custom Lifecycle Events:</strong> You can create custom Lifecycle Events beyond the pre-defined ones to cater to specific organizational needs. These custom events offer flexibility in defining triggers, target identities, and associated workflows.</li>
+<li><strong>Lifecycle Events and Provisioning:</strong>  Lifecycle Events are tightly integrated with IdentityIQ's provisioning engine. The Business Processes triggered by these events can contain provisioning actions, such as creating, modifying, enabling, disabling, or deleting accounts and entitlements.</li>
+<li><strong>Lifecycle Events Configuration:</strong> You manage Lifecycle Events through the <strong>Lifecycle Events</strong> page (Setup &gt; Lifecycle Events). Here, you can:<!-- -->
+<ul>
+<li><strong>Create new Lifecycle Events:</strong> Define a name, description, event type (Create, Manager Transfer, Attribute Change, Rule, Native Change, Alert), target identity population, and the triggering business process.</li>
+<li><strong>Edit pre-defined Lifecycle Events:</strong> Customize the default behavior of the provided events by modifying their associated Business Processes.</li>
+</ul>
+</li>
+<li><strong>Monitoring Lifecycle Events:</strong>  You can monitor the execution and outcomes of Lifecycle Events through various methods:<!-- -->
+<ul>
+<li><strong>Track My Requests:</strong> Provides visibility into the access requests generated by Lifecycle Events, particularly those initiated through Rapid Setup workflows.</li>
+<li><strong>Advanced Analytics:</strong> Allows you to search and analyze audit data, including events related to Lifecycle Events (action: IdentityLifecycleEvent).</li>
+<li><strong>Identity Events:</strong> Offers a historical view of past events associated with an identity, including those triggered by Lifecycle Events.</li>
+</ul>
+</li>
+</ul>
+<p>Overall, Lifecycle Events provide a powerful mechanism in IdentityIQ to automate identity management processes based on real-world events throughout an employee's lifecycle. By defining appropriate triggers and associating them with customized workflows, organizations can streamline access provisioning, de-provisioning, and other critical identity management tasks.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Prerequisites for Enabling and Integrating SailPoint AI Services with IdentityIQ]]></title>
+            <link>https://furqanshaikh.github.io/iam/blog/2024/07/13/sailpoint-ai</link>
+            <guid>https://furqanshaikh.github.io/iam/blog/2024/07/13/sailpoint-ai</guid>
+            <pubDate>Sat, 13 Jul 2024 00:00:00 GMT</pubDate>
+            <description><![CDATA[Prerequisites for Enabling and Integrating SailPoint AI Services with IdentityIQ]]></description>
+            <content:encoded><![CDATA[<h2 class="anchor anchorWithStickyNavbar_LWe7" id="prerequisites-for-enabling-and-integrating-sailpoint-ai-services-with-identityiq">Prerequisites for Enabling and Integrating SailPoint AI Services with IdentityIQ<a href="https://furqanshaikh.github.io/iam/blog/2024/07/13/sailpoint-ai#prerequisites-for-enabling-and-integrating-sailpoint-ai-services-with-identityiq" class="hash-link" aria-label="Direct link to Prerequisites for Enabling and Integrating SailPoint AI Services with IdentityIQ" title="Direct link to Prerequisites for Enabling and Integrating SailPoint AI Services with IdentityIQ">​</a></h2>
+<p>To successfully enable and integrate SailPoint AI Services with your IdentityIQ instance, several prerequisites must be met. These prerequisites can be categorized as:</p>
+<p><strong>1.  IdentityIQ Environment:</strong></p>
+<ul>
+<li><strong>Plugins Enabled:</strong> Ensure that plugins are enabled in your IdentityIQ instance. This is essential for installing the AI Services Recommender Plugin. Verify that the <code>plugins.enabled=true</code> setting is present in the <code>identityiq_home/WEB-INF/classes/iiq.properties</code> file.</li>
+<li><strong>Default hbm.xml Fields:</strong> Refrain from removing any default fields from the various <code>.hbm.xml</code> files (like <code>IdentityExtended.hbm.xml</code> or <code>LinkExtended.hbm.xml</code>), even if you've customized extended and searchable attributes. Removing default fields will prevent AI Services from functioning correctly. You are free to add custom fields as needed.</li>
+</ul>
+<p><strong>2. IdentityNow Tenant:</strong></p>
+<ul>
+<li><strong>Active IdentityNow Tenant:</strong>  You need an active IdentityNow tenant to integrate AI Services with IdentityIQ, as SailPoint's AI Services are part of the IdentityNow platform. This tenant will facilitate data exchange and analysis.</li>
+<li><strong>Client Credentials:</strong> Generate OAuth client credentials (Client ID and Client Secret) within your IdentityNow tenant for the AI Services Recommendation API. These credentials are crucial for secure communication between IdentityIQ and AI Services.</li>
+</ul>
+<p><strong>3. Network and Connectivity:</strong></p>
+<ul>
+<li><strong>AI Services Virtual Appliance:</strong> An AI Services Virtual Appliance is deployed for communication between IdentityIQ and AI Services. This appliance requires specific network configurations to facilitate data transfer.</li>
+<li><strong>Firewall Configuration:</strong>  Configure your firewall to allow outbound HTTPS traffic from your IdentityIQ instance to the AI Services Virtual Appliance. This ensures uninterrupted communication for data sharing and recommendation retrieval.</li>
+</ul>
+<p><strong>4. IBM JDK and WebSphere Configuration (If Applicable):</strong></p>
+<ul>
+<li><strong>TLS 1.2 Support:</strong> If your IdentityIQ deployment utilizes IBM JDK or WebSphere, ensure that your JVM arguments include <code>-Dcom.ibm.jsse2.overrideDefaultTLS=true</code>. This enables TLS version 1.2 support, which is necessary for connecting to AI Services in such environments.</li>
+</ul>
+<p><strong>5.  Additional Considerations:</strong></p>
+<ul>
+<li><strong>Onboarding Process:</strong> Familiarize yourself with the AI Services onboarding process, which outlines the steps for connecting your IdentityIQ instance to AI Services and configuring the necessary settings. This process is essential for seamless integration and data synchronization.</li>
+<li><strong>Deployment Steps:</strong> Review and understand the deployment steps outlined in the "Getting Started with AI-Driven Identity Security for IdentityIQ" guide. These steps provide a roadmap for successfully deploying and configuring AI Services within your IdentityIQ environment.</li>
+<li><strong>Licensing:</strong> AI Services modules may require separate licensing.  Consult your account manager to confirm your licensing agreement and ensure you have the necessary permissions to access and utilize AI Services.</li>
+</ul>
+<p><strong>Remember:</strong>  These prerequisites assume a standard deployment of IdentityIQ. Your specific configuration, environment, and integration requirements might necessitate additional steps or considerations. Always refer to the official SailPoint documentation and consult with SailPoint support for guidance tailored to your unique setup.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Activity Data Source in SailPoint IdentityIQ]]></title>
+            <link>https://furqanshaikh.github.io/iam/blog/2024/07/10/sailpoint-activity-datasource</link>
+            <guid>https://furqanshaikh.github.io/iam/blog/2024/07/10/sailpoint-activity-datasource</guid>
+            <pubDate>Wed, 10 Jul 2024 00:00:00 GMT</pubDate>
+            <description><![CDATA[Discussion on Activity Data Source]]></description>
+            <content:encoded><![CDATA[<h2 class="anchor anchorWithStickyNavbar_LWe7" id="discussion-on-activity-data-source">Discussion on Activity Data Source<a href="https://furqanshaikh.github.io/iam/blog/2024/07/10/sailpoint-activity-datasource#discussion-on-activity-data-source" class="hash-link" aria-label="Direct link to Discussion on Activity Data Source" title="Direct link to Discussion on Activity Data Source">​</a></h2>
+<p>In IdentityIQ, an <strong>Activity Data Source</strong> is a source of information about actions taken by users on applications. This activity information is collected, normalized, and stored by IdentityIQ to enable the monitoring and analysis of user behavior.</p>
+<p>Here are some key aspects of Activity Data Sources:</p>
+<ul>
+<li><strong>Purpose:</strong> Activity Data Sources provide the raw data for IdentityIQ's activity monitoring and reporting capabilities. This data is used to:<!-- -->
+<ul>
+<li><strong>Track User Actions:</strong>  Monitor activities such as logins, file accesses, data modifications, and other application-specific events.</li>
+<li><strong>Detect Anomalies and Risks:</strong> Identify unusual or suspicious activity patterns that might indicate security breaches, policy violations, or insider threats.</li>
+<li><strong>Support Compliance Requirements:</strong> Generate reports and provide audit trails to demonstrate compliance with regulatory frameworks and internal policies.</li>
+</ul>
+</li>
+<li><strong>Types of Activity Data Sources:</strong> IdentityIQ supports various types of Activity Data Sources, catering to different application environments and log formats. Some common types include:<!-- -->
+<ul>
+<li><strong>JDBC Collector:</strong> Collects activity data from relational databases that support JDBC connectivity. This collector requires configuring JDBC connection parameters (connection URL, driver class, username, password) and SQL queries to retrieve relevant activity data.</li>
+<li><strong>Windows Event Log Collector:</strong> Retrieves activity data from Windows event logs. This collector necessitates specifying connection details like the event log server, user credentials, and an MQL query to filter the desired events.</li>
+<li><strong>Log File Collector:</strong>  Gathers activity data from log files stored on various systems. This collector supports different transport mechanisms (local, FTP, SCP) to access log files and requires specifying file names, lines to skip, regular expressions for parsing, and log field definitions.</li>
+<li><strong>RACF Audit Log Collector:</strong> Extracts activity data from RACF (Resource Access Control Facility) audit logs, commonly used in IBM mainframe environments. This collector, similar to the Log File Collector, supports local, FTP, and SCP transports for accessing log files.</li>
+<li><strong>CEF Log File:</strong>  Collects data from log files in the Common Event Format (CEF), a standardized log format used by various security information and event management (SIEM) systems.</li>
+</ul>
+</li>
+<li><strong>Activity Data Source Configuration:</strong> You manage Activity Data Sources through the <strong>Activity Data Source Configuration</strong> page, accessible from the <strong>Application Configuration</strong> page. This page allows you to:<!-- -->
+<ul>
+<li><strong>Add or Edit Data Sources:</strong>  Define a descriptive name, provide a brief explanation of the data source, and select the appropriate <strong>Activity Data Source Type</strong> from the available options.</li>
+<li><strong>Configure Type-Specific Settings:</strong>  Input the necessary connection and query settings for the chosen data source type, as detailed in the previous point about types of Activity Data Sources.</li>
+<li><strong>Define Transformation and Correlation Rules:</strong> Specify rules to transform raw activity data into a format usable by IdentityIQ and correlate it with identities in the system. The <strong>Transformation Rule</strong> converts the collected data, while the <strong>Correlation Rule</strong> establishes links between activities and identities.</li>
+</ul>
+</li>
+<li><strong>Activity Targets:</strong> Within each Activity Data Source, you can define <strong>Activity Targets</strong>. These targets represent specific objects within the data source that are acted upon, such as machine names for logins or file names for file accesses.  Activity Targets are used to:<!-- -->
+<ul>
+<li><strong>Focus Activity Searches:</strong>  Allow administrators to generate searches for activity information on specific targets within a data source.</li>
+<li><strong>Create Activity Target Categories:</strong>  Enable the grouping of targets from multiple applications into categories, simplifying activity monitoring across related systems.</li>
+</ul>
+</li>
+<li><strong>Activity Aggregation Task:</strong>  The actual process of collecting, transforming, correlating, and storing activity data is performed by the <strong>Activity Aggregation</strong> task. This task can be scheduled to run periodically, ensuring that IdentityIQ's activity data is up-to-date.</li>
+</ul>
+<p>Activity Data Sources form the backbone of IdentityIQ's ability to monitor and analyze user behavior across diverse applications. By configuring appropriate Activity Data Sources, defining relevant Activity Targets, and scheduling regular Activity Aggregation tasks, organizations can gain valuable insights into user activity, enhance their security posture, and meet their compliance obligations.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Special Considerations in IdentityIQ]]></title>
+            <link>https://furqanshaikh.github.io/iam/blog/2024/07/07/iiq-special-considerations</link>
+            <guid>https://furqanshaikh.github.io/iam/blog/2024/07/07/iiq-special-considerations</guid>
+            <pubDate>Sun, 07 Jul 2024 00:00:00 GMT</pubDate>
+            <description><![CDATA[Special Considerations in IdentityIQ]]></description>
+            <content:encoded><![CDATA[<h3 class="anchor anchorWithStickyNavbar_LWe7" id="special-considerations-in-identityiq">Special Considerations in IdentityIQ<a href="https://furqanshaikh.github.io/iam/blog/2024/07/07/iiq-special-considerations#special-considerations-in-identityiq" class="hash-link" aria-label="Direct link to Special Considerations in IdentityIQ" title="Direct link to Special Considerations in IdentityIQ">​</a></h3>
+<p>The sources provide several special considerations related to configuring and managing IdentityIQ:</p>
+<ul>
+<li><strong>Database Encryption for Sqlserver JDBC Driver (Installation Guide):</strong> When using Sqlserver JDBC driver versions 10.2 and later, ensure that the Sqlserver database is encrypted. If connecting to an unencrypted database, explicitly add  <code>encrypt=false</code> to the JDBC URLs within the <code>iiq.properties</code> file.</li>
+<li><strong>Java System Properties (Installation Guide):</strong>  You may need to configure specific Java system properties, like proxy settings (<code>http.proxyHost</code>, <code>http.proxyPort</code>, etc.), for IdentityIQ to interact with external systems or services. Consult the documentation for your specific application server (e.g., Apache Tomcat) to understand how to add Java system properties to the environment. For instance, in Tomcat, you would define the <code>JAVA_OPTS</code> environment variable in the  <code>bin\catalina.bat</code> or <code>bin/catalina.sh</code> file.</li>
+<li><strong>Message Broker for Data Extract and Access History (Installation Guide):</strong> Starting with version 8.4, IdentityIQ requires a message broker for the Data Extract and Access History features. While the installation defaults to an Embedded Broker service running an embedded ActiveMQ instance on port 61616, it is recommended to disable this and use an external broker instead. External brokers offer better administration features, message throughput tracking, and statistics.</li>
+<li><strong>Database-Specific Column Sizes for Extended Attributes (Installation Guide):</strong> When extending IdentityIQ objects by adding custom attributes, be mindful of database-specific column size limitations. The comments at the beginning of the <code>IdentityExtended.hbm.xml</code> file provide guidance on these considerations. Several XML files (<code>IdentityExtended.hbm.xml</code>, <code>LinkExtended.hbm.xml</code>, etc.) are used to define extended attributes for different object types within IdentityIQ.</li>
+<li><strong>Character Considerations for the IdentityIQ Password Policy (Password Management):</strong>  When configuring the password policy specifically for IdentityIQ internal passwords, you have unique settings to define allowable character types (Digits, Uppercase, Lowercase/Non-English, Special Characters). Leaving these fields empty permits all characters. You can also set the password expiration duration for manually set passwords (through the Edit Preferences window) using the "Days until expiration for manually set passwords" option.</li>
+<li><strong>Special Characters in Multi-language Descriptions (System Configuration):</strong>  When using multi-language description files, ensure that escaped HTML characters are formatted correctly to display as intended. For instance, to display text in bold, use  <code>&lt;b&gt;test&lt;/b&gt;</code> instead of just <code>test</code>. Similarly, use  <code>&amp;lt;test&amp;gt;</code>  to display  <code>&lt;test&gt;</code>  correctly. Failure to format escaped characters properly can result in unexpected display issues within descriptions.</li>
+<li><strong>Case Sensitivity in Native Change Detection (Release Notes):</strong>  IdentityIQ includes a new option,  <code>detectNativeIdentityChangeCaseSensitive</code>, which defaults to  <code>false</code>. Enabling this option triggers a <code>NativeIdentityChangeEvent</code> even when the native identifier for an Account or Group differs only by case from the value stored in IdentityIQ.  This can impact performance, so consider the implications before enabling it. You can enable this option by adding it to the Attributes Map of the System Configuration.</li>
+</ul>
+<p>These considerations highlight specific configuration settings, database interactions, and potential issues related to managing IdentityIQ effectively.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Key Capabilities and Functionality Extensions of SailPoint's Plugin Framework]]></title>
+            <link>https://furqanshaikh.github.io/iam/blog/2024/07/04/Key-Capabilities</link>
+            <guid>https://furqanshaikh.github.io/iam/blog/2024/07/04/Key-Capabilities</guid>
+            <pubDate>Thu, 04 Jul 2024 00:00:00 GMT</pubDate>
+            <description><![CDATA[Key Capabilities and Functionality Extensions of SailPoint's Plugin Framework]]></description>
+            <content:encoded><![CDATA[<h2 class="anchor anchorWithStickyNavbar_LWe7" id="key-capabilities-and-functionality-extensions-of-sailpoints-plugin-framework">Key Capabilities and Functionality Extensions of SailPoint's Plugin Framework<a href="https://furqanshaikh.github.io/iam/blog/2024/07/04/Key-Capabilities#key-capabilities-and-functionality-extensions-of-sailpoints-plugin-framework" class="hash-link" aria-label="Direct link to Key Capabilities and Functionality Extensions of SailPoint's Plugin Framework" title="Direct link to Key Capabilities and Functionality Extensions of SailPoint's Plugin Framework">​</a></h2>
+<p>The SailPoint Plugin Framework offers several key capabilities that allow you to extend the functionality of IdentityIQ. Here's a breakdown:</p>
+<p><strong>Extensibility:</strong></p>
+<ul>
+<li><strong>Class path isolation on the server side:</strong> This allows developers to leverage any third-party libraries or technologies for REST endpoints, background services, or Java classes called from scripts.</li>
+<li><strong>JavaScript isolation on the client side:</strong>  Plugin developers can utilize any third-party client-side libraries without conflicts.</li>
+<li><strong>Core code protection:</strong> The framework ensures that plugins cannot override or modify the behavior of IdentityIQ's backend code, ensuring security and facilitating smooth upgrades.</li>
+</ul>
+<p><strong>Integration:</strong></p>
+<ul>
+<li><strong>Web service extensions:</strong>  Developers can create custom REST endpoints to exchange data between their plugins and the IdentityIQ data model.</li>
+<li><strong>Plugin database access:</strong> Plugins can create and manage their own database tables within IdentityIQ, providing persistent storage for plugin-specific data.</li>
+</ul>
+<p><strong>UI Enhancements:</strong></p>
+<ul>
+<li><strong>Plugin installation and removal:</strong> Plugins can be dynamically installed and removed, offering a user-friendly drag-and-drop experience or requiring installation before IdentityIQ starts.</li>
+<li><strong>UI Customization:</strong> Plugins can include user interface elements like:<!-- -->
+<ul>
+<li><strong>Full-page applications:</strong> Create entirely new pages within IdentityIQ.</li>
+<li><strong>Snippets:</strong> Inject small pieces of code to modify existing IdentityIQ user interface pages, such as adding menu options or buttons.</li>
+<li><strong>Widgets:</strong> Develop reusable UI components that users can add to their IdentityIQ home pages.</li>
+</ul>
+</li>
+<li><strong>SailPoint Angular components:</strong> Plugins can leverage the SailPoint Angular library to implement UI elements consistent with the IdentityIQ design, providing a seamless user experience.</li>
+</ul>
+<p><strong>Business Logic Implementation:</strong></p>
+<ul>
+<li><strong>Plugin Java Classes:</strong> Developers can write Java classes to implement custom logic, including:<!-- -->
+<ul>
+<li><strong>REST Classes:</strong>  Extend IdentityIQ's REST API by creating custom endpoints to handle specific actions.</li>
+<li><strong>Plugin Executors:</strong>  Implement background tasks, services, or policies that can be invoked within IdentityIQ.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Security and Permissions:</strong></p>
+<ul>
+<li><strong>Plugin authorization:</strong> Control access to plugin functionality by defining custom Capabilities and SPRights.  This allows you to restrict access to UI components and secure REST endpoints.</li>
+</ul>
+<p><strong>Examples of Plugin Use Cases:</strong></p>
+<ul>
+<li><strong>Integrating with a third-party service desk system (e.g., BMC Remedyforce) to create and track tickets for provisioning requests.</strong> The sources mention several Service Desk Integration Modules, including ones for BMC Helix Remedyforce, a generic one, and one for Cherwell. This indicates that creating plugins to interact with service desk solutions is a common use case.</li>
+<li><strong>Building a custom reporting dashboard to visualize IdentityIQ data in a specific way.</strong> While not explicitly mentioned, the sources provide extensive information on customizing reports in IdentityIQ, suggesting that plugins could be used to extend reporting capabilities even further.</li>
+<li><strong>Developing a custom workflow to automate a specific business process related to identity management.</strong> The sources highlight the use of plugins for custom tasks and executors, which can be used to create and manage custom workflows within IdentityIQ.</li>
+</ul>
+<p>This response draws exclusively from the provided sources.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Initial Operations for a Fresh Production IIQ Deployment]]></title>
+            <link>https://furqanshaikh.github.io/iam/blog/2024/07/01/Initial-Operations</link>
+            <guid>https://furqanshaikh.github.io/iam/blog/2024/07/01/Initial-Operations</guid>
+            <pubDate>Mon, 01 Jul 2024 00:00:00 GMT</pubDate>
+            <description><![CDATA[Initial Operations for a Fresh Production IIQ Deployment]]></description>
+            <content:encoded><![CDATA[<h2 class="anchor anchorWithStickyNavbar_LWe7" id="initial-operations-for-a-fresh-production-iiq-deployment">Initial Operations for a Fresh Production IIQ Deployment<a href="https://furqanshaikh.github.io/iam/blog/2024/07/01/Initial-Operations#initial-operations-for-a-fresh-production-iiq-deployment" class="hash-link" aria-label="Direct link to Initial Operations for a Fresh Production IIQ Deployment" title="Direct link to Initial Operations for a Fresh Production IIQ Deployment">​</a></h2>
+<p>SailPoint offer a structured approach to deploying a fresh production instance of IdentityIQ, focusing heavily on the initial setup and configuration process. Here's a consolidated list of initial operations based on the sources:</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="system-preparation--installation">System Preparation &amp; Installation<a href="https://furqanshaikh.github.io/iam/blog/2024/07/01/Initial-Operations#system-preparation--installation" class="hash-link" aria-label="Direct link to System Preparation &amp; Installation" title="Direct link to System Preparation &amp; Installation">​</a></h3>
+<ul>
+<li><strong>Install &amp; Deploy IdentityIQ:</strong> Follow the detailed instructions in the <em>IdentityIQ Installation Guide</em>.</li>
+<li><strong>Create Databases:</strong> Create separate databases for IdentityIQ and Access History, even if you don't plan to use the Access History feature initially. Separate instances are recommended for performance reasons.</li>
+<li><strong>Secure Database Connection:</strong> Use the <code>iiq encrypt &lt;password&gt;</code> command to encrypt the database password for enhanced security.</li>
+<li><strong>Import Initial Configuration:</strong> Import essential configuration objects using the IdentityIQ console:<!-- -->
+<ul>
+<li>Use <code>import init.xml</code> for core IdentityIQ objects.</li>
+<li>Use <code>import init-lcm.xml</code> to activate Lifecycle Manager features.</li>
+<li>Import <code>init-ai.xml</code> for AI Services integration.</li>
+<li>Import <code>init-cam.xml</code> for Cloud Access Management integration.</li>
+</ul>
+</li>
+<li><strong>Start Application Server:</strong> Start your chosen application server (e.g., Tomcat, JBoss, WebLogic) after configuration.</li>
+</ul>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="system-configuration">System Configuration<a href="https://furqanshaikh.github.io/iam/blog/2024/07/01/Initial-Operations#system-configuration" class="hash-link" aria-label="Direct link to System Configuration" title="Direct link to System Configuration">​</a></h3>
+<ul>
+<li><strong>Access IdentityIQ:</strong> Open a web browser and navigate to your IdentityIQ installation URL (e.g., <code>http://localhost:8080/identityiq</code> for a default Tomcat installation).</li>
+<li><strong>Log in with Default Credentials:</strong> Use the default user ID <code>spadmin</code> and password <code>admin</code> for initial access.</li>
+<li><strong>Configure Global Settings:</strong> Access Global Settings through the gear icon in the Navigation bar. Key configurations include:<!-- -->
+<ul>
+<li><strong>IdentityIQ Configuration:</strong> Set defaults for notifications, work items, object expiration, UI preferences, and identity history.</li>
+<li><strong>Login Configuration:</strong> Configure authentication settings, including optional integration with an external authentication system.</li>
+<li><strong>Identity and Account Mappings:</strong> Define how IdentityIQ correlates identity data and account attributes from various sources.</li>
+<li><strong>Rapid Setup Configuration:</strong>  Enable and configure global options for Rapid Setup, a streamlined approach to managing joiners, movers, leavers, and identity termination processes.</li>
+<li><strong>AI Services Configuration:</strong> Connect to and configure AI Services for AI-driven identity security functionalities.</li>
+<li><strong>Cloud Access Management Configuration:</strong> Set up connection parameters and synchronize data with Cloud Access Management solutions.</li>
+<li><strong>File Access Manager Configuration:</strong> Configure integration with File Access Manager if this module is installed.</li>
+</ul>
+</li>
+<li><strong>Configure Email Settings:</strong>
+<ul>
+<li>Set up email redirection during initial setup for debugging purposes.</li>
+<li>Configure email templates for various IdentityIQ events and notifications to match your organization's branding.</li>
+</ul>
+</li>
+<li><strong>Configure Object Expiration:</strong> Define retention policies for identity snapshots, task results, certifications, syslog events, and provisioning transactions.</li>
+<li><strong>Configure Auditing:</strong> Review and adjust auditing options to meet your organization's requirements for tracking and reporting.</li>
+</ul>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="additional-configurations-optional">Additional Configurations (Optional)<a href="https://furqanshaikh.github.io/iam/blog/2024/07/01/Initial-Operations#additional-configurations-optional" class="hash-link" aria-label="Direct link to Additional Configurations (Optional)" title="Direct link to Additional Configurations (Optional)">​</a></h3>
+<ul>
+<li><strong>Lifecycle Manager Activation:</strong> If you've purchased Lifecycle Manager, activate it by importing <code>init-lcm.xml</code>.</li>
+<li><strong>Rapid Setup:</strong> Configure application-specific settings for joiners, movers, and leavers if using Rapid Setup.</li>
+<li><strong>Plugins:</strong> Install and configure plugins to extend IdentityIQ's functionality beyond its core capabilities.</li>
+<li><strong>Single Sign-On:</strong> Configure single sign-on for seamless access to IdentityIQ from other applications.</li>
+<li><strong>Time Synchronization:</strong> Ensure accurate event processing and reporting by synchronizing the IdentityIQ server time.</li>
+</ul>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="post-configuration-activities">Post-Configuration Activities<a href="https://furqanshaikh.github.io/iam/blog/2024/07/01/Initial-Operations#post-configuration-activities" class="hash-link" aria-label="Direct link to Post-Configuration Activities" title="Direct link to Post-Configuration Activities">​</a></h3>
+<ul>
+<li><strong>Verify System Functionality:</strong> Thoroughly test all configured features and integrations to ensure they operate as expected.</li>
+<li><strong>User Training:</strong> Provide training to administrators and end-users on using the newly deployed IdentityIQ system.</li>
+</ul>
+<p>This detailed breakdown of initial operations for a fresh production IIQ deployment is based on the information provided in the sources. Remember to consult the relevant documentation for your specific environment and requirements.</p>]]></content:encoded>
         </item>
     </channel>
 </rss>
